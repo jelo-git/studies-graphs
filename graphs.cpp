@@ -334,6 +334,53 @@ private:
         }
         cout << endl;
     }
+    void printDEL()
+    {
+        if (hasLoop)
+        {
+            cout << "Graf zawiera cykl. Sortowanie niemożliwe." << endl;
+            return;
+        }
+        cout << "Sorted: ";
+        while (!list.empty())
+        {
+            cout << setw(4) << list.front();
+            list.pop();
+        }
+        cout << endl;
+    }
+    int findFirstDEL(int position)
+    {
+        if (visited[position] == -1)
+        {
+            hasLoop = 1;
+            return -1;
+        }
+        else if (visited[position] == 0)
+        {
+            int pos = position;
+            visited[position] = -1;
+            int point = macierz[position][msize + 1];
+            if (point != 0)
+            {
+                while (true)
+                {
+                    if (!visited[point - 1])
+                    {
+                        pos = findFirstDEL(point - 1);
+                        break;
+                    }
+                    if (macierz[position][point - 1] - msize == point)
+                    {
+                        break;
+                    }
+                    point = macierz[position][point - 1] - msize;
+                }
+            }
+            visited[position] = 0;
+            return pos;
+        }
+    }
 
 public:
     mgrafu(){};
@@ -418,25 +465,41 @@ public:
         }
         if (!foundParentless)
             hasLoop = 1;
-        for (int n = 0; n < msize; n++)
+        if (!hasLoop)
         {
-            if (visited[n] == 0)
+            for (int n = 0; n < msize; n++)
             {
-                hasLoop = 1;
-                // break;
+                if (visited[n] == 0)
+                {
+                    hasLoop = 1;
+                    break;
+                }
             }
         }
         printDFS();
     }
+    void DELmgrafu()
+    {
+        int n = 0;
+        do
+        {
+            if (visited[n] == 0)
+            {
+                int pos = findFirstDEL(n);
+                list.push(pos + 1);
+                visited[pos] = 1;
+            }
+            else
+            {
+                n++;
+            }
+        } while (list.size() != msize && !hasLoop);
+        printDEL();
+    }
 };
 int main()
 {
-    cout << "owo" << endl;
-    mgrafu m;
-    m.loadFromFile();
-    cout << "owo" << endl;
-    m.print();
-    cout << "owo" << endl;
-    m.DFSmgrafu();
+    msasiedztwa ms1;
+
     return 0;
 }
