@@ -525,15 +525,13 @@ void testSpeed()
         auto duration = chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start);
         cout << "(" << n << "," << duration.count() << ")";
     }
-    msasiedztwa m2;
     cout << endl
          << "DEL: ";
     for (int n = 100; n <= 1500; n += 100)
     {
-        m2.generateMatrix(n);
+        m.generateMatrix(n);
         auto start = chrono::high_resolution_clock::now();
-        m2.DELmsasiedztwa();
-        cout << "egg" << endl;
+        m.DELmsasiedztwa();
         auto duration = chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start);
         cout << "(" << n << "," << duration.count() << ")";
     }
@@ -563,10 +561,6 @@ void testSpeed()
 }
 int main()
 {
-    // testSpeed();
-    msasiedztwa m;
-    m.generateMatrix(30);
-    cout << "owo" << endl;
-    m.DFSmsasiedztwa(1);
+    testSpeed();
     return 0;
 }
