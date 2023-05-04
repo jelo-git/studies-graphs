@@ -4,6 +4,8 @@
 #include <fstream>
 #include <stack>
 #include <queue>
+#include <algorithm>
+#include <vector>
 
 using namespace std;
 
@@ -198,22 +200,90 @@ public:
     }
 };
 
+struct funnySorting
+{
+    bool operator()(int l, int r)
+    {
+        return l > r;
+    }
+} funnySorting;
 class mgrafu
 {
 private:
     int **macierz, msize = 0;
-    queue<int> *lists;
+    vector<int> *ni, *pi, *bi;
     void createMatirx(int size)
     {
         msize = size;
         macierz = new int *[size];
-        lists = new queue<int>[size];
+        ni = new vector<int>[size];
+        pi = new vector<int>[size];
+        bi = new vector<int>[size];
         for (int n = 0; n < size; n++)
         {
             macierz[n] = new int[size + 3];
             for (int m = 0; m < size; m++)
             {
                 macierz[n][m] = 0;
+                bi[n].push_back(m);
+            }
+            macierz[n][size] = 0;
+            macierz[n][size + 1] = 0;
+            macierz[n][size + 2] = 0;
+        }
+    }
+    void buildMatrix()
+    {
+        for (int n = 0; n < msize; n++)
+        {
+            sort(ni[n].begin(), ni[n].end(), funnySorting);
+            sort(pi[n].begin(), pi[n].end(), funnySorting);
+            sort(bi[n].begin(), bi[n].end(), funnySorting);
+            int pos;
+            while (!ni[n].empty())
+            {
+                if (macierz[n][msize] == 0)
+                {
+                    pos = ni[n].back();
+                    macierz[n][msize] = pos + 1;
+                }
+                else
+                {
+                    macierz[n][pos] = ni[n].back() + 1;
+                    pos = ni[n].back();
+                }
+                macierz[n][pos] = pos + 1;
+                ni[n].pop_back();
+            }
+            while (!pi[n].empty())
+            {
+                if (macierz[n][msize + 1] == 0)
+                {
+                    pos = pi[n].back();
+                    macierz[n][msize + 1] = pos + 1;
+                }
+                else
+                {
+                    macierz[n][pos] = pi[n].back() + 1 + msize;
+                    pos = pi[n].back();
+                }
+                macierz[n][pos] = pos + 1 + msize;
+                pi[n].pop_back();
+            }
+            while (!bi[n].empty())
+            {
+                if (macierz[n][msize + 2] == 0)
+                {
+                    pos = bi[n].back();
+                    macierz[n][msize + 2] = pos + 1;
+                }
+                else
+                {
+                    macierz[n][pos] = -(bi[n].back() + 1);
+                    pos = bi[n].back();
+                }
+                macierz[n][pos] = -(pos + 1);
+                bi[n].pop_back();
             }
         }
     }
@@ -223,6 +293,7 @@ public:
     void loadFromFile(string name = "input.txt")
     {
         ifstream file(name);
+
         if (file.is_open())
         {
             int a, b, validate;
@@ -230,9 +301,15 @@ public:
             createMatirx(a);
             while (file >> a >> b)
             {
-                // todo
+                a--;
+                b--;
+                ni[a].push_back(b);
+                pi[b].push_back(a);
+                bi[a].erase(remove(bi[a].begin(), bi[a].end(), b), bi[a].end());
+                bi[b].erase(remove(bi[b].begin(), bi[b].end(), a), bi[b].end());
                 validate--;
             }
+            buildMatrix();
             if (validate)
             {
                 cout << "[WARN] Incorrect graph." << endl;
@@ -246,6 +323,17 @@ public:
     void generateMatrix(int size)
     {
         createMatirx(size);
+        for (int n = 0; n < size; n++)
+        {
+            for (int m = n + 2; m <= size; m++)
+            {
+                ni[n].push_back(m - 1);
+                pi[m - 1].push_back(n);
+                bi[n].erase(remove(bi[n].begin(), bi[n].end(), m - 1), bi[n].end());
+                bi[m - 1].erase(remove(bi[m - 1].begin(), bi[m - 1].end(), n), bi[m - 1].end());
+            }
+        }
+        buildMatrix();
     }
     void print()
     {
@@ -275,7 +363,7 @@ int main()
 {
     cout << "owo" << endl;
     mgrafu m;
-    m.generateMatrix(4);
+    m.generateMatrix(5);
     cout << "owo" << endl;
     m.print();
     return 0;
