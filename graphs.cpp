@@ -120,7 +120,7 @@ public:
                 macierz[--a][--b] = 1;
                 validate--;
             }
-            if (validate)
+            if (validate != 0)
             {
                 cout << "[WARN] Incorrect graph." << endl;
             }
@@ -210,12 +210,16 @@ struct funnySorting
 class mgrafu
 {
 private:
-    int **macierz, msize = 0;
+    int **macierz, *visited, msize = 0, hasLoop = 0;
     vector<int> *ni, *pi, *bi;
+    stack<int> sorted;
+    queue<int> list;
     void createMatirx(int size)
     {
         msize = size;
+        hasLoop = 0;
         macierz = new int *[size];
+        visited = new int[size];
         ni = new vector<int>[size];
         pi = new vector<int>[size];
         bi = new vector<int>[size];
@@ -287,6 +291,49 @@ private:
             }
         }
     }
+    void visitDFS(int position)
+    {
+        // 0 not visited, -1 visited but not noted, 1 visited and noted
+        if (visited[position] == -1)
+        {
+            hasLoop = 1;
+        }
+        else if (visited[position] == 0)
+        {
+            visited[position] = -1;
+
+            int pos = macierz[position][msize];
+            if (pos != 0)
+            {
+                while (true)
+                {
+                    visitDFS(pos - 1);
+                    if (macierz[position][pos - 1] == pos)
+                    {
+                        break;
+                    }
+                    pos = macierz[position][pos - 1];
+                }
+            }
+            sorted.push(position + 1);
+            visited[position] = 1;
+        }
+    }
+    void printDFS()
+    {
+        if (hasLoop)
+        {
+            cout << "Graf zawiera cykl. Sortowanie niemożliwe." << endl;
+            return;
+        }
+        cout << "Sorted: ";
+        while (!sorted.empty())
+        {
+            cout << setw(4) << sorted.top();
+            sorted.pop();
+        }
+        cout << endl;
+    }
 
 public:
     mgrafu(){};
@@ -310,7 +357,7 @@ public:
                 validate--;
             }
             buildMatrix();
-            if (validate)
+            if (validate != 0)
             {
                 cout << "[WARN] Incorrect graph." << endl;
             }
@@ -358,13 +405,38 @@ public:
             cout << endl;
         }
     }
+    void DFSmgrafu()
+    {
+        int foundParentless = 0;
+        for (int n = 0; n < msize; n++)
+        {
+            if (macierz[n][msize + 1] == 0)
+            {
+                foundParentless = 1;
+                visitDFS(n);
+            }
+        }
+        if (!foundParentless)
+            hasLoop = 1;
+        for (int n = 0; n < msize; n++)
+        {
+            if (visited[n] == 0)
+            {
+                hasLoop = 1;
+                // break;
+            }
+        }
+        printDFS();
+    }
 };
 int main()
 {
     cout << "owo" << endl;
     mgrafu m;
-    m.generateMatrix(5);
+    m.loadFromFile();
     cout << "owo" << endl;
     m.print();
+    cout << "owo" << endl;
+    m.DFSmgrafu();
     return 0;
 }
