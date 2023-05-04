@@ -6,6 +6,7 @@
 #include <queue>
 #include <algorithm>
 #include <vector>
+#include <chrono>
 
 using namespace std;
 
@@ -69,24 +70,27 @@ private:
     }
     int findFirstDEL(int positon)
     {
+        int pos = positon;
         if (visited[positon] == -1)
         {
             hasLoop = 1;
-            return -1;
         }
-        int pos = positon;
-        visited[positon] = -1;
-        for (int n = 0; n < msize; n++)
+        else if (visited[positon] == 0)
         {
-            if (macierz[n][positon] == 1)
+            visited[positon] = -1;
+            for (int n = 0; n < msize; n++)
             {
-                if (!visited[n])
+                if (macierz[n][positon] == 1)
                 {
-                    pos = findFirstDEL(n);
+                    if (!visited[n])
+                    {
+                        pos = findFirstDEL(n);
+                        break;
+                    }
                 }
             }
+            visited[positon] = 0;
         }
-        visited[positon] = 0;
         return pos;
     }
     void printDEL()
@@ -164,7 +168,7 @@ public:
             cout << endl;
         }
     }
-    void DFSmsasiedztwa()
+    void DFSmsasiedztwa(int print = 0)
     {
         int n = 0;
         do
@@ -178,9 +182,12 @@ public:
                 n++;
             }
         } while (sorted.size() != msize && !hasLoop);
-        printDFS();
+        if (print)
+        {
+            printDFS();
+        }
     }
-    void DELmsasiedztwa()
+    void DELmsasiedztwa(int print = 0)
     {
         int n = 0;
         do
@@ -196,7 +203,10 @@ public:
                 n++;
             }
         } while (list.size() != msize && !hasLoop);
-        printDEL();
+        if (print)
+        {
+            printDEL();
+        }
     }
 };
 
@@ -351,14 +361,13 @@ private:
     }
     int findFirstDEL(int position)
     {
+        int pos = position;
         if (visited[position] == -1)
         {
             hasLoop = 1;
-            return -1;
         }
         else if (visited[position] == 0)
         {
-            int pos = position;
             visited[position] = -1;
             int point = macierz[position][msize + 1];
             if (point != 0)
@@ -378,8 +387,8 @@ private:
                 }
             }
             visited[position] = 0;
-            return pos;
         }
+        return pos;
     }
 
 public:
@@ -452,7 +461,7 @@ public:
             cout << endl;
         }
     }
-    void DFSmgrafu()
+    void DFSmgrafu(int print = 0)
     {
         int foundParentless = 0;
         for (int n = 0; n < msize; n++)
@@ -476,9 +485,12 @@ public:
                 }
             }
         }
-        printDFS();
+        if (print)
+        {
+            printDFS();
+        }
     }
-    void DELmgrafu()
+    void DELmgrafu(int print = 0)
     {
         int n = 0;
         do
@@ -494,12 +506,67 @@ public:
                 n++;
             }
         } while (list.size() != msize && !hasLoop);
-        printDEL();
+        if (print)
+        {
+            printDEL();
+        }
     }
 };
+void testSpeed()
+{
+    msasiedztwa m;
+    cout << "macierz sasiedztwa" << endl
+         << "DFS: ";
+    for (int n = 100; n <= 1500; n += 100)
+    {
+        m.generateMatrix(n);
+        auto start = chrono::high_resolution_clock::now();
+        m.DFSmsasiedztwa();
+        auto duration = chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start);
+        cout << "(" << n << "," << duration.count() << ")";
+    }
+    msasiedztwa m2;
+    cout << endl
+         << "DEL: ";
+    for (int n = 100; n <= 1500; n += 100)
+    {
+        m2.generateMatrix(n);
+        auto start = chrono::high_resolution_clock::now();
+        m2.DELmsasiedztwa();
+        cout << "egg" << endl;
+        auto duration = chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start);
+        cout << "(" << n << "," << duration.count() << ")";
+    }
+    cout << endl;
+    mgrafu mg;
+    cout << "macierz grafu" << endl
+         << "DFS: ";
+    for (int n = 100; n <= 1500; n += 100)
+    {
+        mg.generateMatrix(n);
+        auto start = chrono::high_resolution_clock::now();
+        mg.DFSmgrafu();
+        auto duration = chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start);
+        cout << "(" << n << "," << duration.count() << ")";
+    }
+    cout << endl
+         << "DEL: ";
+    for (int n = 100; n <= 1500; n += 100)
+    {
+        mg.generateMatrix(n);
+        auto start = chrono::high_resolution_clock::now();
+        mg.DELmgrafu();
+        auto duration = chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start);
+        cout << "(" << n << "," << duration.count() << ")";
+    }
+    cout << endl;
+}
 int main()
 {
-    msasiedztwa ms1;
-
+    // testSpeed();
+    msasiedztwa m;
+    m.generateMatrix(30);
+    cout << "owo" << endl;
+    m.DFSmsasiedztwa(1);
     return 0;
 }
