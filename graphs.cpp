@@ -82,7 +82,7 @@ private:
             {
                 if (macierz[n][positon] == 1)
                 {
-                    if (!visited[n])
+                    if (visited[n] != 1)
                     {
                         pos = findFirstDEL(n);
                         break;
@@ -130,7 +130,10 @@ public:
             createMatrix(a);
             while (file >> a >> b)
             {
-                macierz[--a][--b] = 1;
+                a--;
+                b--;
+                macierz[a][b] = 1;
+                macierz[b][a] = -1;
                 validate--;
             }
             if (validate != 0)
@@ -208,8 +211,8 @@ public:
             if (visited[n] == 0)
             {
                 int pos = findFirstDEL(n);
-                list.push(pos + 1);
                 visited[pos] = 1;
+                list.push(pos + 1);
             }
             else
             {
@@ -389,7 +392,7 @@ private:
             {
                 while (true)
                 {
-                    if (!visited[point - 1])
+                    if (visited[point - 1] != 1)
                     {
                         pos = findFirstDEL(point - 1);
                         break;
@@ -601,6 +604,10 @@ void testSpeed()
 }
 int main()
 {
-    testSpeed();
+    // testSpeed();
+    mgrafu m;
+    m.loadFromFile("wyklad.txt");
+    m.print();
+    m.DELmgrafu(1);
     return 0;
 }
