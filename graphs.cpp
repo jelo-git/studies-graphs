@@ -16,7 +16,7 @@ private:
     int **macierz, *visited, msize = 0, hasLoop = 0;
     stack<int> sorted;
     queue<int> list;
-    void createMatirx(int size)
+    void createMatrix(int size)
     {
         msize = size;
         hasLoop = 0;
@@ -111,6 +111,15 @@ private:
 
 public:
     msasiedztwa(){};
+    ~msasiedztwa()
+    {
+        for (int n = 0; n < msize; n++)
+        {
+            delete[] macierz[n];
+        }
+        delete[] macierz;
+        delete[] visited;
+    };
     void loadFromFile(string name = "input.txt")
     {
         ifstream file(name);
@@ -118,7 +127,7 @@ public:
         {
             int a, b, validate;
             file >> a >> validate;
-            createMatirx(a);
+            createMatrix(a);
             while (file >> a >> b)
             {
                 macierz[--a][--b] = 1;
@@ -136,7 +145,7 @@ public:
     }
     void generateMatrix(int size)
     {
-        createMatirx(size);
+        createMatrix(size);
         for (int n = 1; n < size; n++)
         {
             for (int m = n - 1; m >= 0; m--)
@@ -170,6 +179,8 @@ public:
     }
     void DFSmsasiedztwa(int print = 0)
     {
+        stack<int> empty;
+        swap(sorted, empty);
         int n = 0;
         do
         {
@@ -189,6 +200,8 @@ public:
     }
     void DELmsasiedztwa(int print = 0)
     {
+        queue<int> empty;
+        swap(list, empty);
         int n = 0;
         do
         {
@@ -217,14 +230,15 @@ struct funnySorting
         return l > r;
     }
 } funnySorting;
+
 class mgrafu
 {
 private:
-    int **macierz, *visited, msize = 0, hasLoop = 0;
+    int **macierz, *visited, msize, hasLoop;
     vector<int> *ni, *pi, *bi;
     stack<int> sorted;
     queue<int> list;
-    void createMatirx(int size)
+    void createMatrix(int size)
     {
         msize = size;
         hasLoop = 0;
@@ -244,6 +258,7 @@ private:
             macierz[n][size] = 0;
             macierz[n][size + 1] = 0;
             macierz[n][size + 2] = 0;
+            visited[n] = 0;
         }
     }
     void buildMatrix()
@@ -393,6 +408,18 @@ private:
 
 public:
     mgrafu(){};
+    ~mgrafu()
+    {
+        for (int n = 0; n < msize; n++)
+        {
+            delete[] macierz[n];
+        }
+        delete[] macierz;
+        delete[] visited;
+        delete[] ni;
+        delete[] pi;
+        delete[] bi;
+    };
     void loadFromFile(string name = "input.txt")
     {
         ifstream file(name);
@@ -401,7 +428,7 @@ public:
         {
             int a, b, validate;
             file >> a >> validate;
-            createMatirx(a);
+            createMatrix(a);
             while (file >> a >> b)
             {
                 a--;
@@ -425,7 +452,7 @@ public:
     }
     void generateMatrix(int size)
     {
-        createMatirx(size);
+        createMatrix(size);
         for (int n = 0; n < size; n++)
         {
             for (int m = n + 2; m <= size; m++)
@@ -448,43 +475,53 @@ public:
         cout << setw(3) << "";
         for (int n = 1; n <= msize + 3; n++)
         {
-            cout << setw(3) << n;
+            cout << setw(5) << n;
         }
         cout << endl;
         for (int n = 0; n < msize; n++)
         {
-            cout << setw(3) << n + 1;
+            cout << setw(5) << n + 1;
             for (int m = 0; m < msize + 3; m++)
             {
-                cout << setw(3) << macierz[n][m];
+                cout << setw(5) << macierz[n][m];
             }
             cout << endl;
         }
     }
     void DFSmgrafu(int print = 0)
     {
-        int foundParentless = 0;
-        for (int n = 0; n < msize; n++)
+        stack<int> empty;
+        swap(sorted, empty);
+        int n = 0;
+        do
         {
-            if (macierz[n][msize + 1] == 0)
+            if (print)
             {
-                foundParentless = 1;
+                cout << "yay" << n << endl;
+            }
+            if (visited[n] == 0)
+            {
                 visitDFS(n);
             }
-        }
-        if (!foundParentless)
-            hasLoop = 1;
-        if (!hasLoop)
-        {
-            for (int n = 0; n < msize; n++)
+            else
             {
-                if (visited[n] == 0)
-                {
-                    hasLoop = 1;
-                    break;
-                }
+                n++;
             }
-        }
+        } while (sorted.size() != msize && !hasLoop);
+        // for (int n = 0; n < msize; n++)
+        // {
+        // }
+        // if (!hasLoop)
+        // {
+        //     for (int n = 0; n < msize; n++)
+        //     {
+        //         if (visited[n] == 0)
+        //         {
+        //             hasLoop = 1;
+        //             break;
+        //         }
+        //     }
+        // }
         if (print)
         {
             printDFS();
@@ -492,6 +529,8 @@ public:
     }
     void DELmgrafu(int print = 0)
     {
+        queue<int> empty;
+        swap(list, empty);
         int n = 0;
         do
         {
@@ -535,8 +574,9 @@ void testSpeed()
         auto duration = chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start);
         cout << "(" << n << "," << duration.count() << ")";
     }
-    cout << endl;
+
     mgrafu mg;
+    cout << endl;
     cout << "macierz grafu" << endl
          << "DFS: ";
     for (int n = 100; n <= 1500; n += 100)
